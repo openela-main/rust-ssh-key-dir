@@ -5,7 +5,7 @@
 
 Name:           rust-%{crate}
 Version:        0.1.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        sshd AuthorizedKeysCommand to read ~/.ssh/authorized_keys.d
 
 # Upstream license specification: Apache-2.0
@@ -60,18 +60,10 @@ fi
 %autosetup -n %{crate}-%{version_no_tilde} -p1
 %if 0%{?rhel} && !0%{?eln}
 tar xvf %{SOURCE1}
-mkdir -p .cargo
-cat >.cargo/config << EOF
-[source.crates-io]
-replace-with = "vendored-sources"
-
-[source.vendored-sources]
-directory = "vendor"
-EOF
+%cargo_prep -v vendor
 %else
 %cargo_prep
 %endif
-
 
 %if !0%{?rhel} || 0%{?eln}
 %generate_buildrequires
@@ -96,6 +88,10 @@ install -Dpm0644 -t %{buildroot}%{_sysconfdir}/ssh/sshd_config.d conf/40-ssh-key
 %endif
 
 %changelog
+* Fri Jun 19 2026 Rolv Apneseth <rapneset@redhat.com> - 0.1.4-2
+- Update Rust macro usage to fix rpmbuild failure (profile `rpm` is not defined)
+- Resolves #156481
+
 * Fri Oct 14 2022 Steven Presti <spresti@redhat.com> - 0.1.4-1
 - New release
 - Regenerate with rust2rpm 22
